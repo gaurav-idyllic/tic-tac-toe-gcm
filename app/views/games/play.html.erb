@@ -1,0 +1,45 @@
+<div class="row">
+  <div class="col-lg-6">
+    <b>'X' is a player and 'O' is a computer</b>
+  </div>
+  <div class="col-lg-6">
+    <input type="button" value="Start New game" onClick="window.location.href=window.location.href" class="btn btn-default pull-right new_button">
+  </div>
+</div>
+
+
+<div class="row">
+  <!-- <div class="col-lg-4">
+    <input type="button" value="Start New game" onClick="window.location.href=window.location.href">
+  </div>
+   -->
+   <div class="col-lg-12">
+    <!-- <div class="clearfix"></div> -->
+    <input type="hidden" name="game_id" class="game_id_cls" value="<%=@game.id%>" >
+    <input type="hidden" name="is_game_finished" class="is_game_finished_class" value="" >
+
+    <div id="board-container">
+      <table class='table' id="table-board" bordercolor="#ffffff" align="center" cellpadding="0" cellspacing="0" border="2">
+        <tbody>
+          <tr>
+            <td id="tick_0_0" class="tick_item_class"></td>
+            <td id="tick_0_1" class="tick_item_class"></td>
+            <td id="tick_0_2" class="tick_item_class"></td>
+          </tr>
+          <tr>
+            <td id="tick_1_0" class="tick_item_class"></td>
+            <td id="tick_1_1" class="tick_item_class"></td>
+            <td id="tick_1_2" class="tick_item_class"></td>
+          </tr>
+          <tr>
+            <td id="tick_2_0" class="tick_item_class"></td>
+            <td id="tick_2_1" class="tick_item_class"></td>
+            <td id="tick_2_2" class="tick_item_class"></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<input type="button" value="Start New game" onClick="window.location.href=window.location.href" class="btn btn-default pull-right new_button">

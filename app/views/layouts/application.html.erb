@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>tic-tac-toe by Gaurav</title>
+  <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => true %>
+  <%= csrf_meta_tags %>
+</head>
+<body>
+  <div class="body_div">
+    <div class="clearfix row grey_back">
+      <div class="col-lg-6">
+        <h1>tic-tac-toe by Gaurav</h1>
+      </div>
+      <% if current_user %>
+        <div class="col-lg-5">
+          <p class="header_user_name">
+            Hello, <%= current_user.email %>
+            (<%= link_to('Log Out', destroy_user_session_path, method: :delete, class: "fa fa-key") %>)
+          </p>
+        </div>
+      <% end %>
+    </div>
+    <!-- <p class="notice">< %= notice %></p>
+    <p class="alert">< %= alert %></p> -->
+    <hr>
+    <div class="clearfix">
+      <%= yield %>
+    </div>
+
+    <hr>
+    <footer>
+      <div class="footer-copyright">
+        <div class="container-fluid">
+            --developed by Gaurav Mamidwar
+        </div>
+    </div>
+    </footer>
+  </div>
+  <!-- < %= link_to('Log In', new_user_session_path) %> -->
+  <%= javascript_include_tag 'application', 'data-turbolinks-track' => true %>
+</body>
+</html>

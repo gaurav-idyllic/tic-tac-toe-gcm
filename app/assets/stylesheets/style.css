@@ -1,0 +1,32 @@
+body {
+  margin: 0 auto;
+}
+.body_div {
+  margin: 25px;
+  background-color: #7e7e7e;
+}
+body div.grey_back {
+  margin-bottom: 15px !important;
+}
+h1 {
+  margin-left: 10px;
+  font-family: cursive;
+}
+#board-container table {
+  width: 300px;
+  font-size: xx-large;
+}
+#board-container table td {
+  background-color: black;
+  width: 50px !important;
+  color: white;
+}
+.tick_item_class {
+  height: 100px;
+}
+.header_user_name {
+  font-size: x-large;
+}
+.new_button {
+  margin: 15px;
+}
