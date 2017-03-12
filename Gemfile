@@ -52,3 +52,4 @@ gem "font-awesome-rails"
 gem 'toastr-rails'
 
 
+gem 'rails_12factor', group: :production
