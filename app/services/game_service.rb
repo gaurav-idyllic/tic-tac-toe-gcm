@@ -7,42 +7,40 @@ class GameService < BaseService
     @cells = @game.cells
   end
 
-  WINNING_POSITIONS = [
-                        [[0, 0], [1, 1], [2, 2]],
-                        [[0, 0], [0, 1], [0, 2]],
-                        [[1, 0], [1, 1], [1, 2]],
-                        [[2, 0], [2, 1], [2, 2]],
-                        [[2, 0], [1, 1], [0, 2]],
-                        [[0, 0], [1, 0], [2, 0]],
-                        [[0, 1], [1, 1], [2, 1]],
-                        [[0, 2], [1, 2], [2, 2]]
-                     ]
-  CORNER_POSITIONS = [[0, 0], [0, 2], [2, 2], [2, 0]]
+  SYSTEM_CELL_VALUE = 0
+  MINIMUM_CELLS_FOR_WIN_CHECK = 6
   CENTER_POSITION = [1, 1]
+  CORNER_POSITIONS = [[0, 0], [0, 2], [2, 2], [2, 0]]
+  WINNING_POSITIONS = [
+    [[0, 0], [0, 1], [0, 2]],
+    [[1, 0], [1, 1], [1, 2]],
+    [[2, 0], [2, 1], [2, 2]],
+    [[0, 0], [1, 1], [2, 2]],
+    [[2, 0], [1, 1], [0, 2]],
+    [[0, 0], [1, 0], [2, 0]],
+    [[0, 1], [1, 1], [2, 1]],
+    [[0, 2], [1, 2], [2, 2]]
+  ]
 
-  def receive_move_by_player(params)
+  def move_by_player(params)
     tie = false
     user_win = false
     system_win = false
-    move = params[:move].split('_')
-    x_position = move[1]
-    y_position = move[2]
-    cell = cells.where(x_position: x_position, y_position: y_position, value: nil)
-    unless cell.present?
-      return {
-        success: false,
-        errors: ['move already taken.'],
-        system_move: [],
-        user_win: user_win,
-        system_win: system_win,
-        tie: tie
-      }
-    end
-    cell.first.update_attributes(value: user.id)
-    system_move = calculate_system_move(move)
-    if cells.where('value is not NULL').count > 4
-      user_win = check_win_of_player
-      system_win = check_win_of_system unless user_win
+    _, x_position, y_position = params[:move].split('_')
+    cell = cells.find_by(x_position: x_position, y_position: y_position, value: nil)
+    return {
+      success: false,
+      errors: ['move already taken.'],
+      system_move: [],
+      user_win: user_win,
+      system_win: system_win,
+      tie: tie
+    } if cell.nil?
+    cell.update_value(user.id)
+    system_move = calculate_system_move(x_position, y_position)
+    if cells.where('value is not NULL').count >= MINIMUM_CELLS_FOR_WIN_CHECK
+      user_win = check_win(user.id)
+      system_win = check_win(SYSTEM_CELL_VALUE) unless user_win
     end
     tie = true unless cells.where(value: nil).present?
     {
@@ -57,8 +55,8 @@ class GameService < BaseService
 
   private
 
-  def calculate_system_move(move)
-    current_move = [move[1].to_i, move[2].to_i]
+  def calculate_system_move(x_position, y_position)
+    current_move = [x_position.to_i, y_position.to_i]
     filled_cells = cells.where('value is not NULL')
     system_cells = cells.where(value: 0)
     user_cells = cells.where(value: user.id)
@@ -134,23 +132,15 @@ class GameService < BaseService
       system_cell = cells.where(value: nil).first
     end
     if system_cell.present?
-      system_cell.update_attributes(value: 0)
+      system_cell.update_value(SYSTEM_CELL_VALUE)
     end
     game.finished! unless cells.where(value: nil).present?
     system_cell.present? ? [system_cell.x_position, system_cell.y_position] : []
   end
 
-  def check_win_of_player
-    check_win(user.id)
-  end
-
-  def check_win_of_system
-    check_win(0)
-  end
-
   def check_win(user_id)
     filled_cells = cells.where(value: user_id)
-    selected_positions = filled_cells.map { |x| [x.x_position, x.y_position] }
+    selected_positions = filled_cells.map { |cell| [cell.x_position, cell.y_position] }
     WINNING_POSITIONS.each do |win_position_array|
       win = true
       win_position_array.each do |location|
@@ -168,5 +158,5 @@ end
 
 
 # system_cell_vals = CORNER_POSITIONS[CORNER_POSITIONS.index(current_move) + 1]
-        # system_cell_vals = CORNER_POSITIONS.first if system_cell_vals.nil?
-        # system_cell = cells.find_by(x_position: system_cell_vals[0], y_position: system_cell_vals[1])
+# system_cell_vals = CORNER_POSITIONS.first if system_cell_vals.nil?
+# system_cell = cells.find_by(x_position: system_cell_vals[0], y_position: system_cell_vals[1])

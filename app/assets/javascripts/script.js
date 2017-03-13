@@ -12,7 +12,7 @@ $('td.tick_item_class').click(function(){
   }
 
   $.ajax({
-      url: "/games/" +game_id+ "/receive_move_by_player",
+      url: "/games/" +game_id+ "/move_by_player",
       type: 'PUT',
       data: {
         move: self.attr("id")

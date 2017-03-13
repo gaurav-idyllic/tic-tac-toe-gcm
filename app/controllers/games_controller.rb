@@ -1,6 +1,6 @@
 class GamesController < ApplicationController
 
-  before_action :load_game, only: [:receive_move_by_player]
+  before_action :load_game, only: [:move_by_player]
 
   # def new
   #   if params[:game_id].present?
@@ -18,13 +18,13 @@ class GamesController < ApplicationController
     # @system = User.find_by(email: 'system@gmail.com')
   end
 
-  def receive_move_by_player
+  def move_by_player
     render json: {
       success: false,
       errors: ['Game already finished.']
     } and return if @game.finished?
     game_service = GameService.new(current_user, @game)
-    response = game_service.receive_move_by_player(params)
+    response = game_service.move_by_player(params)
     render json: {
       success: response[:errors].blank?,
       errors: response[:errors],
