@@ -23,35 +23,15 @@ class GamesController < ApplicationController
       success: false,
       errors: ['Game already finished.']
     } and return if @game.finished?
-    move = params[:move].split('_')
-    x_position = move[1]
-    y_position = move[2]
-    cells = @game.cells
-    cell = cells.where(x_position: x_position, y_position: y_position, value: nil)
-    unless cell.present?
-      return render json: {
-        success: false,
-        errors: ['move already taken.']
-      }
-    end
-    user_win = false
-    system_win = false
-    tie = false
-    cell.first.update_attributes(value: current_user.id)
     game_service = GameService.new(current_user, @game)
-    system_move = game_service.calculate_system_move(move)
-    if cells.where('value is not NULL').count > 4
-      user_win = game_service.check_win_of_player
-      system_win = game_service.check_win_of_system unless user_win
-    end
-    tie = true unless cells.where(value: nil).present?
+    response = game_service.receive_move_by_player(params)
     render json: {
-      success: true,
-      errors: [],
-      system_move: system_move,
-      user_win: user_win,
-      system_win: system_win,
-      tie: tie
+      success: response[:errors].blank?,
+      errors: response[:errors],
+      system_move: response[:system_move],
+      user_win: response[:user_win],
+      system_win: response[:system_win],
+      tie: response[:tie]
     }
   end
 

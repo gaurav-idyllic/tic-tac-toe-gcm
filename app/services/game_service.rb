@@ -1,9 +1,10 @@
 class GameService < BaseService
-  attr_reader :user, :game
+  attr_reader :user, :game, :cells
 
   def initialize(user, game)
     @user = user
     @game = game
+    @cells = @game.cells
   end
 
   WINNING_POSITIONS = [
@@ -19,9 +20,45 @@ class GameService < BaseService
   CORNER_POSITIONS = [[0, 0], [0, 2], [2, 2], [2, 0]]
   CENTER_POSITION = [1, 1]
 
+  def receive_move_by_player(params)
+    tie = false
+    user_win = false
+    system_win = false
+    move = params[:move].split('_')
+    x_position = move[1]
+    y_position = move[2]
+    cell = cells.where(x_position: x_position, y_position: y_position, value: nil)
+    unless cell.present?
+      return {
+        success: false,
+        errors: ['move already taken.'],
+        system_move: [],
+        user_win: user_win,
+        system_win: system_win,
+        tie: tie
+      }
+    end
+    cell.first.update_attributes(value: user.id)
+    system_move = calculate_system_move(move)
+    if cells.where('value is not NULL').count > 4
+      user_win = check_win_of_player
+      system_win = check_win_of_system unless user_win
+    end
+    tie = true unless cells.where(value: nil).present?
+    {
+      success: true,
+      errors: [],
+      system_move: system_move,
+      user_win: user_win,
+      system_win: system_win,
+      tie: tie
+    }
+  end
+
+  private
+
   def calculate_system_move(move)
     current_move = [move[1].to_i, move[2].to_i]
-    cells = game.cells
     filled_cells = cells.where('value is not NULL')
     system_cells = cells.where(value: 0)
     user_cells = cells.where(value: user.id)
@@ -112,8 +149,8 @@ class GameService < BaseService
   end
 
   def check_win(user_id)
-    cells = game.cells.where(value: user_id)
-    selected_positions = cells.map { |x| [x.x_position, x.y_position] }
+    filled_cells = cells.where(value: user_id)
+    selected_positions = filled_cells.map { |x| [x.x_position, x.y_position] }
     WINNING_POSITIONS.each do |win_position_array|
       win = true
       win_position_array.each do |location|
